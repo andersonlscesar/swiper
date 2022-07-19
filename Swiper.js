@@ -48,6 +48,7 @@ class Swiper {
             this.startPosition = this.getStartPosition(e)
             this.isDragging = true 
             this.moveSwiper()
+            requestAnimationFrame(this.animation)
         }
     }
 
@@ -60,6 +61,12 @@ class Swiper {
     endDragging() {
         return () => {
             this.isDragging = false 
+            let moved = this.currentTranslate -  this.prevTranslate 
+
+            if(moved < -200 && this.currentIndex < this.contents.length - 1) this.currentIndex++
+            if(moved > 200 && this.currentIndex > 0 ) this.currentIndex--
+            console.log(moved)
+            this.changeImageByIndex()
             this.moveSwiper()
         }
     }
@@ -85,13 +92,33 @@ class Swiper {
         return (e) => {
             if(this.isDragging) {
                 let currentPosition = this.getStartPosition(e)
-                let dislocate = this.startPosition - currentPosition
-                this.swiper.style.transform = `translateX(${-dislocate}px)`
-                console.log(true)
-                // this.currentTranslate = this.prevTranslate + currentPosition - this.startPosition
+                this.currentTranslate = this.prevTranslate + currentPosition - this.startPosition                     
             }
         }      
     } 
+
+    changeImageByIndex() {
+        this.currentTranslate = this.currentIndex * - window.innerWidth
+        this.prevTranslate = this.currentTranslate
+        this.move()
+    }
+    
+    
+    move() {
+        this.swiper.style.transform = `translateX(${this.currentTranslate}px)`
+        console.log('teste')
+    }
+
+    animation() {
+        return () => {
+            this.move()
+            if(this.isDragging) {
+                requestAnimationFrame(this.animation)
+            }
+        }
+    }
+
+
 }
 
 let swiper = document.querySelector('.swipe')
